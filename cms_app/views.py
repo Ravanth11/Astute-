@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -123,6 +124,9 @@ def delete_image(request, id):
     messages.success(request, "Image deleted!")
     return redirect('asset_manager')
 
+def blog_list(request):
+    posts = BlogPost.objects.all()
+    return render(request, 'blog_list.html', {'posts': posts})
 
 
 def login_view(request):
