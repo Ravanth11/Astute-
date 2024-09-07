@@ -34,6 +34,10 @@ urlpatterns = [
     path('image/<str:image_uuid>/', views.get_image, name='get_image'),
     path('asset-manager/', views.asset_manager, name='asset_manager'),
     path('delete-image/<int:id>/', views.delete_image, name='delete_image'),
+    path('blogs/', views.blog_list, name='blog_list'),
 ]
+
+
+
 
 
