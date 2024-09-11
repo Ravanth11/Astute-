@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -10,6 +9,9 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from rest_framework import viewsets
+from .models import BlogPost
+from .serializers import BlogPostSerializer
 import markdown2
 from .models import BlogPost, Images
 import uuid
@@ -73,7 +75,7 @@ def view_post(request, id):
 @login_required
 def delete(request, id):
     post = get_object_or_404(BlogPost, id=id)
-    post.delete()
+    post.delete() 
     messages.success(request, "Blog Post Deleted!")
     return redirect('manage')
 
@@ -124,9 +126,6 @@ def delete_image(request, id):
     messages.success(request, "Image deleted!")
     return redirect('asset_manager')
 
-def blog_list(request):
-    posts = BlogPost.objects.all()
-    return render(request, 'blog_list.html', {'posts': posts})
 
 
 def login_view(request):
@@ -175,3 +174,11 @@ def sign_up_view(request):
             login(request, user)
             return redirect('home')
     return render(request, 'sign_up.html')
+def blog_list(request):
+    posts = BlogPost.objects.all()
+    return render(request, 'blog_list.html', {'posts': posts})
+
+class BlogPostViewSet(viewsets.ModelViewSet):
+    queryset = BlogPost.objects.all()
+    serializer_class = BlogPostSerializer
+
