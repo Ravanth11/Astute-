@@ -17,7 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from cms_app import views
+from rest_framework.routers import DefaultRouter
 
+
+router = DefaultRouter()
+router.register(r'blogposts', views.BlogPostViewSet)
 urlpatterns = [
      path('login/',views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -35,6 +39,7 @@ urlpatterns = [
     path('asset-manager/', views.asset_manager, name='asset_manager'),
     path('delete-image/<int:id>/', views.delete_image, name='delete_image'),
     path('blogs/', views.blog_list, name='blog_list'),
+    path('api/',include(router.urls))
 ]
 
 
