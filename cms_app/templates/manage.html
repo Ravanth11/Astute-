@@ -40,16 +40,16 @@
   <tbody class="bg-white divide-y divide-gray-200">
     {% for i in posts %}
     <tr>
-      <td class="px-6 py-4 whitespace-nowrap">{{ i.id }}</td>
+      <td class="px-6 py-4 whitespace-nowrap">{{ forloop.counter }}</td>
       <td class="px-6 py-4 whitespace-nowrap">{{ i.title }}</td>
       <td class="px-6 py-4 whitespace-nowrap">{{ i.author }}</td>
       <td class="px-6 py-4 whitespace-nowrap">
-        <img src="{{ i.thumbnail }}" class="size-14 h-14 w-14 object-cover" />
+        <img src="{{ i.thumbnail }}" class="h-14 w-14 object-cover" alt="Image Thumbnail"/>
+
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
         <a href="/view/{{i.id}}" class="text-indigo-600 hover:text-indigo-900"
-          >Preview</a
-        >
+          >Preview</a>
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
         <a

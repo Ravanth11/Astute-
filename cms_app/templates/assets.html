@@ -33,21 +33,23 @@
     </tr>
   </thead>
   <tbody class="bg-white divide-y divide-gray-200">
-    {% for i in images %}
+    {% for i in BlogPost %}
+    print(i.thumbnail)
     <tr>
       <td class="px-6 py-4 whitespace-nowrap">{{ i.id }}</td>
-      <td class="px-6 py-4 whitespace-nowrap">{{ i.image_name }}</td>
+      <td class="px-6 py-4 whitespace-nowrap">{{ i.title }}</td>
       <td class="px-6 py-4 whitespace-nowrap">
-        <img src="{{ i.url }}" class="size-14 h-14 w-14 object-cover" />
+        <img src="{{ i.thumbnail }}" class="size-14 h-14 w-14 object-cover" alt="{{ i.title }}" />
+
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
-        <a href="{{i.url}}" class="text-indigo-600 hover:text-indigo-900"
+        <a href="{{i.thumbnail}}" class="text-indigo-600 hover:text-indigo-900"
           >Preview</a
         >
       </td>
       <td class="px-6 py-4 whitespace-nowrap">
-        <a
-          href="/delete-image/{{ i.id }}"
+        <a href="{% url 'delete_image' i.id %}" class="text-red-600 hover:text-red-900">Delete</a>
+
           class="text-red-600 hover:text-red-900"
           >Delete</a
         >

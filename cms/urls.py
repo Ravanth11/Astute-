@@ -15,8 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from cms_app import views
+from rest_framework.routers import DefaultRouter
+
+
+router = DefaultRouter()
+router.register(r'blogposts', views.BlogPostViewSet)
 
 urlpatterns = [
      path('login/',views.login_view, name='login'),
@@ -34,6 +39,18 @@ urlpatterns = [
     path('image/<str:image_uuid>/', views.get_image, name='get_image'),
     path('asset-manager/', views.asset_manager, name='asset_manager'),
     path('delete-image/<int:id>/', views.delete_image, name='delete_image'),
+    path('blogs/', views.blog_list, name='blog_list'),
+    path('api/fetch_all_posts/', views.fetch_all_posts, name='fetch_all_posts'),
+    path('api/fetch_6_posts/', views.fetch_6_posts, name='fetch_6_posts'),
+    path('api/fetch_posts_txt/', views.fetch_posts_txt, name='fetch_posts_txt'),
+    path('generate-video/', views.video_generation_view, name='generate_video'),
+    path('api/',include(router.urls))
 ]
 
 
+from django.conf import settings
+from django.conf.urls.static import static
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    

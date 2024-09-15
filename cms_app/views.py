@@ -9,6 +9,9 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from rest_framework import viewsets
+from .models import BlogPost
+from .serializers import BlogPostSerializer
 import markdown2
 from .models import BlogPost, Images
 import uuid
@@ -72,7 +75,7 @@ def view_post(request, id):
 @login_required
 def delete(request, id):
     post = get_object_or_404(BlogPost, id=id)
-    post.delete()
+    post.delete() 
     messages.success(request, "Blog Post Deleted!")
     return redirect('manage')
 
@@ -112,10 +115,13 @@ def upload_image(request):
 def get_image(request, image_uuid):
     image = get_object_or_404(Images, url=request.build_absolute_uri(reverse('get_image', args=[image_uuid])))
     return HttpResponse(io.BytesIO(image.image_data), content_type='image/jpeg')
-
+@login_required
 def asset_manager(request):
     images = Images.objects.order_by('-id').all()
+    print(images)
     return render(request, 'assets.html', {'images': images, 'user': request.user})
+
+
 
 def delete_image(request, id):
     image = get_object_or_404(Images, id=id)
@@ -171,3 +177,166 @@ def sign_up_view(request):
             login(request, user)
             return redirect('home')
     return render(request, 'sign_up.html')
+def blog_list(request):
+    posts = BlogPost.objects.all()
+    return render(request, 'blog_list.html', {'posts': posts})
+
+class BlogPostViewSet(viewsets.ModelViewSet):
+    queryset = BlogPost.objects.all()
+    serializer_class = BlogPostSerializer
+
+from django.http import JsonResponse
+from .models import BlogPost
+
+def fetch_all_posts(request):
+    posts = BlogPost.objects.order_by('-id').all()
+    response = []
+    for post in posts:
+        response.append({
+            'id': post.id,
+            'title': post.title,
+            'author': post.author,
+            'thumbnail': post.thumbnail,
+            'content': post.content_html,
+            'date_created': post.date_created
+        })
+    return JsonResponse(response, safe=False)
+
+def fetch_6_posts(request):
+    posts = BlogPost.objects.order_by('-id')[:6]
+    response = []
+    for post in posts:
+        response.append({
+            'id': post.id,
+            'title': post.title,
+            'author': post.author,
+            'thumbnail': post.thumbnail,
+            'content': post.content_html,
+            'date_created': post.date_created
+        })
+    return JsonResponse(response, safe=False)
+from bs4 import BeautifulSoup
+
+def fetch_posts_txt(request):
+    posts = BlogPost.objects.order_by('-id').all()
+    response = []
+    for post in posts:
+        soup = BeautifulSoup(post.content_html, "html.parser")
+        text = ''.join(soup.findAll(text=True)).replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replace('  ', ' ')
+        response.append({
+            'id': post.id,
+            'title': post.title,
+            'author': post.author,
+            'thumbnail': post.thumbnail,
+            'content': text,
+            'date_created': post.date_created
+        })
+    return JsonResponse(response, safe=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from diffusers import StableDiffusionPipeline
+from PIL import Image
+import cv2
+import torch
+import os
+
+# Load the model and move it to the GPU
+model_loaded = False
+image_pipe = None
+
+def load_model():
+    global image_pipe, model_loaded
+    if not model_loaded:
+        image_pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")
+        image_pipe.to("cuda")  # Ensure that CUDA is available and working
+        model_loaded = True
+
+def generate_prompts(product_description, background_description):
+    image_prompts = [
+        f"Show a {product_description} on a {background_description}",
+        f"Display a close-up of a {product_description} with a {background_description}",
+        f"Show a {product_description} with a {background_description}",
+        f"Create an image of a {product_description} on a {background_description}",
+        f"Illustrate a {product_description} with a {background_description}"
+    ]
+    return image_prompts * 2
+
+def generate_images(prompts):
+    image_filenames = []
+    load_model()
+
+    for i, prompt in enumerate(prompts):
+        image = image_pipe(prompt).images[0]
+        image_filename = f"media/frame_{i}.png"
+        image.save(image_filename)
+        image_filenames.append(image_filename)
+
+    return image_filenames
+
+def create_video(image_filenames, video_filename="media/generated_video.mp4", frame_rate=2):
+    first_image = cv2.imread(image_filenames[0])
+    frame_size = (first_image.shape[1], first_image.shape[0])
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    video_writer = cv2.VideoWriter(video_filename, fourcc, frame_rate, frame_size)
+
+    for image_filename in image_filenames:
+        frame = cv2.imread(image_filename)
+        video_writer.write(frame)
+
+    video_writer.release()
+
+    return video_filename
+
+import os
+import uuid
+from django.conf import settings
+from django.shortcuts import render
+
+def video_generation_view(request):
+    if request.method == 'POST':
+        product_description = request.POST.get('product_description')
+        background_description = request.POST.get('background_description')
+
+        # Generate prompts and images
+        prompts = generate_prompts(product_description, background_description)
+        image_filenames = generate_images(prompts)
+
+        # Generate the video file and save it to the media/mng/ folder
+        video_filename = os.path.join(settings.MEDIA_ROOT, f"generated_video_{uuid.uuid4()}.mp4")
+
+        # Ensure media directory exists before saving video
+        os.makedirs(os.path.dirname(video_filename), exist_ok=True)
+
+        # Call the function to create the video
+        create_video(image_filenames, video_filename)
+
+        # Check if the video was successfully created
+        if os.path.exists(video_filename):
+            # Construct the correct video URL to serve the video
+            video_url = f"{settings.MEDIA_URL}{os.path.basename(video_filename)}"
+            print(f"Video successfully created at {video_filename}")
+            print(f"Constructed video URL: {video_url}")
+        else:
+            video_url = None
+            print(f"Video creation failed at {video_filename}")
+
+        return render(request, 'generate_video.html', {'video_url': video_url})
+
+    return render(request, 'generate_video.html')
+

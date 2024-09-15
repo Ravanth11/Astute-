@@ -11,8 +11,7 @@ class User(models.Model):
     def __str__(self):
         return self.username
 
-
-class BlogPost(models.Model):
+class BlogPost(models.Model): 
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
     content_md = models.TextField()
