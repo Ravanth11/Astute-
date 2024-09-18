@@ -263,7 +263,7 @@ def load_model():
     global image_pipe, model_loaded
     if not model_loaded:
         image_pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")
-        image_pipe.to("cuda")  # Ensure that CUDA is available and working
+        image_pipe.to("cuda")  
         model_loaded = True
 
 def generate_prompts(product_description, background_description):
@@ -312,23 +312,18 @@ def video_generation_view(request):
     if request.method == 'POST':
         product_description = request.POST.get('product_description')
         background_description = request.POST.get('background_description')
-
-        # Generate prompts and images
         prompts = generate_prompts(product_description, background_description)
         image_filenames = generate_images(prompts)
-
-        # Generate the video file and save it to the media/mng/ folder
         video_filename = os.path.join(settings.MEDIA_ROOT, f"generated_video_{uuid.uuid4()}.mp4")
 
-        # Ensure media directory exists before saving video
         os.makedirs(os.path.dirname(video_filename), exist_ok=True)
 
-        # Call the function to create the video
         create_video(image_filenames, video_filename)
 
-        # Check if the video was successfully created
+
         if os.path.exists(video_filename):
-            # Construct the correct video URL to serve the video
+
+
             video_url = f"{settings.MEDIA_URL}{os.path.basename(video_filename)}"
             print(f"Video successfully created at {video_filename}")
             print(f"Constructed video URL: {video_url}")
