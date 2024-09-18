@@ -23,6 +23,9 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'blogposts', views.BlogPostViewSet)
 
+
+router = DefaultRouter()
+router.register(r'blogposts', views.BlogPostViewSet)
 urlpatterns = [
      path('login/',views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

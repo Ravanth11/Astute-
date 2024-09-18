@@ -16,7 +16,7 @@ class BlogPost(models.Model):
     title = models.CharField(max_length=100)
     content_md = models.TextField()
     content_html = models.TextField(blank=True, null=True)
-    thumbnail = models.CharField(max_length=255, blank=True, null=True)
+    thumbnail = models.TextField(blank=True, null=True)
     author = models.CharField(max_length=50)
     date_created = models.DateTimeField(default=timezone.now)
 
