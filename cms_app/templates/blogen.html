@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            color: #333;
+        }
+        .blog-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .blog-content p {
+            line-height: 1.6;
+            margin-bottom: 1.2em;
+        }
+        .blog-content h3 {
+            margin-top: 1.6em;
+            color: #0056b3;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Generated Blog Post</h2>
+
+    <div class="blog-container">
+        <div class="blog-content">
+            <p>{{ response|safe }}</p>
+        </div>
+    </div>
+
+    <a href="{% url 'generate_blog' %}">Generate Another Blog Post</a>
+
+</body>
+</html>

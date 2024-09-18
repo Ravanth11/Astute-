@@ -47,6 +47,7 @@ urlpatterns = [
     path('api/fetch_6_posts/', views.fetch_6_posts, name='fetch_6_posts'),
     path('api/fetch_posts_txt/', views.fetch_posts_txt, name='fetch_posts_txt'),
     path('generate-video/', views.video_generation_view, name='generate_video'),
+    path('blogpost/', views.generate_blog, name='generate_blog'),
     path('api/',include(router.urls))
 ]
 

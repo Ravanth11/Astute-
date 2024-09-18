@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogpost</title>
+</head>
+<body>
+    <h2>Generate Blog</h2>
+<form method="POST">
+    {% csrf_token %}
+    <label for="api_key">API Key:</label>
+    <input type="text" id="api_key" name="api_key" required><br><br>
+
+    <label for="idea">Business Idea:</label>
+    <textarea id="idea" name="idea" rows="4" cols="50"></textarea><br><br>
+
+    <button type="submit">Generate</button>
+</form>
+
+    
+</body>
+</html>

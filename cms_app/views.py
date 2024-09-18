@@ -335,3 +335,55 @@ def video_generation_view(request):
 
     return render(request, 'generate_video.html')
 
+
+
+
+
+
+from django.shortcuts import render
+import google.generativeai as genai
+
+# View to get blog post based on user input
+def generate_blog(request):
+    if request.method == 'POST':
+        # Get the API key and idea from the user input
+        api_key = request.POST.get('api_key')
+        idea = request.POST.get('idea')
+
+        # Configure the Generative AI with the provided API key
+        genai.configure(api_key=api_key)
+
+        # Define the model
+        model = genai.GenerativeModel('gemini-pro')
+
+        # Define the prompt template
+        prompt_template = f"""
+            Business Idea: {idea}
+            Task: Write a blog related to the business idea with at least 1500 words. The blog should have the following structure:
+
+            Title: A catchy and engaging title related to the business idea.
+
+            Subtitle: A relevant and interesting subtitle highlighting the key benefits or unique features of the business idea.
+
+            Introduction: Provide a brief introduction to the business idea, explaining its significance and why it stands out in the market. Mention the primary purpose and its appeal to the target audience.
+
+            Main Body:
+            - **Section 1: **
+              Describe the design and aesthetics related to the business idea. Highlight the materials used, the overall look, and how these contribute to functionality. Explain any technology or features that enhance the product's quality or appeal.
+
+            - **Section 2: **
+              Discuss how the business idea fits into daily life and its practical applications. Focus on aspects like comfort, usability, and any features that make it suitable for specific activities or environments, such as commuting, exercising, or professional settings.
+
+            - **Section 3: **
+              Explore additional features that add value to the business idea. This could include built-in functionalities, controls, or any other enhancements that improve user experience. Explain how these features address user needs or offer convenience.
+
+            Conclusion: Summarize the key points discussed in the blog. Reinforce the strengths and benefits of the business idea. End with a call to action, encouraging readers to consider engaging with or learning more about the business idea.
+        """
+
+        # Generate the blog content
+        response = model.generate_content(prompt_template)
+
+        # Return the generated response to the template
+        return render(request, 'blogen.html', {'response': response.text})
+
+    return render(request, 'blogpost.html')
